@@ -108,15 +108,24 @@ check_dependencies() {
     
     local missing_deps=()
     
-    for dep in curl grep wget strings; do
+    # Essential utilities for downloading and installation
+    # curl: Required for downloading the AppImage and API communication
+    # wget: Alternative download method if curl fails
+    for dep in curl wget; do
         if ! command -v "$dep" &>/dev/null; then
             missing_deps+=("$dep")
         fi
     done
     
+    # libfuse2: Critical dependency for running AppImages
+    # Without this, the AppImage won't even start
+    if ! dpkg -l | grep -q "^ii.*libfuse2"; then
+        missing_deps+=("libfuse2")
+    fi
+    
     if [ ${#missing_deps[@]} -gt 0 ]; then
-        log_message "WARNING" "Some required dependencies are missing: ${missing_deps[*]}"
-        log_message "INFO" "Installing missing dependencies..."
+        log_message "WARNING" "Missing required dependencies: ${missing_deps[*]}"
+        log_message "INFO" "Installing dependencies..."
         
         apt-get update -qq || {
             log_message "ERROR" "Failed to update package lists. Aborting."
@@ -519,6 +528,12 @@ Options:
   ${INFO} --help        Show this help message
 
 If no option is specified, the script will install or update Cursor automatically.
+
+Required Dependencies:
+  - libfuse2: Essential for running AppImages
+  - curl or wget: For downloading files
+
+The installer will automatically install these dependencies if they are missing.
 
 For more information and updates, visit:
 ${ARROW} https://github.com/flavio-ever/cursor-linux-installer
