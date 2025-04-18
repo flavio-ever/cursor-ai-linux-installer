@@ -54,6 +54,7 @@ curl -fsSL https://raw.githubusercontent.com/flavio-ever/cursor-linux-installer/
 ```
 
 After installation, you can use these commands:
+
 ```bash
 # Install Cursor
 cursor-manager install
@@ -72,6 +73,7 @@ cursor-manager remove-manager
 ```
 
 The installer will:
+
 1. Check and install required dependencies
 2. Create necessary directories
 3. Download the latest Cursor AppImage
@@ -83,6 +85,7 @@ The installer will:
 ## Usage
 
 After installation, you can:
+
 - Open Cursor from your applications menu
 - Use the `cursor` command in your terminal
 - Run directly: `/opt/cursor/cursor.AppImage`
@@ -90,16 +93,19 @@ After installation, you can:
 ## Installation Location
 
 The Cursor AI IDE will be installed to:
+
 ```
 /opt/cursor/cursor.AppImage
 ```
 
 And the desktop entry will be created at:
+
 ```
 /usr/share/applications/cursor.desktop
 ```
 
 If you use the Cursor Manager, it will be installed at:
+
 ```
 ~/.local/bin/cursor-manager
 ```
@@ -126,6 +132,7 @@ MIT License - see [LICENSE](LICENSE) file for details.
 ## Support
 
 Found an issue? Please:
+
 1. Check existing issues
 2. Create a new issue with:
    - OS and version
@@ -134,7 +141,14 @@ Found an issue? Please:
 ## Recent Updates
 
 ### v1.0.0
+
 - Initial release
 - Installation and update support
 - Shell integration
 - Desktop menu integration
+
+### v1.0.1
+
+- Add shell detection for bash, zsh and fish support
+- Add proper dependency checking similar to installer.sh
+- Improve PATH handling for different shell configurations
