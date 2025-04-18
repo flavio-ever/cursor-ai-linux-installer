@@ -1,4 +1,4 @@
-# Cursor Linux Installer
+# Cursor AI Linux Installer
 
 ![Cursor Logo](https://raw.githubusercontent.com/rahuljangirwork/copmany-logos/main/cursor.png)
 
@@ -21,7 +21,7 @@ A simple installer script for Cursor AI IDE on Linux systems. Downloads and inst
 Install Cursor AI IDE with a single command:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/flavio-ever/cursor-linux-installer/main/installer.sh | sudo bash
+curl -fsSL https://raw.githubusercontent.com/flavio-ever/cursor-ai-linux-installer/main/installer.sh | sudo bash
 ```
 
 ### Command Options
@@ -30,19 +30,19 @@ You can also use specific commands:
 
 ```bash
 # Install Cursor
-curl -fsSL https://raw.githubusercontent.com/flavio-ever/cursor-linux-installer/main/installer.sh | sudo bash -s -- --install
+curl -fsSL https://raw.githubusercontent.com/flavio-ever/cursor-ai-linux-installer/main/installer.sh | sudo bash -s -- --install
 
 # Update Cursor
-curl -fsSL https://raw.githubusercontent.com/flavio-ever/cursor-linux-installer/main/installer.sh | sudo bash -s -- --update
+curl -fsSL https://raw.githubusercontent.com/flavio-ever/cursor-ai-linux-installer/main/installer.sh | sudo bash -s -- --update
 
 # Uninstall Cursor
-curl -fsSL https://raw.githubusercontent.com/flavio-ever/cursor-linux-installer/main/installer.sh | sudo bash -s -- --uninstall
+curl -fsSL https://raw.githubusercontent.com/flavio-ever/cursor-ai-linux-installer/main/installer.sh | sudo bash -s -- --uninstall
 
 # Check version
-curl -fsSL https://raw.githubusercontent.com/flavio-ever/cursor-linux-installer/main/installer.sh | sudo bash -s -- --version
+curl -fsSL https://raw.githubusercontent.com/flavio-ever/cursor-ai-linux-installer/main/installer.sh | sudo bash -s -- --version
 
 # Show help
-curl -fsSL https://raw.githubusercontent.com/flavio-ever/cursor-linux-installer/main/installer.sh | sudo bash -s -- --help
+curl -fsSL https://raw.githubusercontent.com/flavio-ever/cursor-ai-linux-installer/main/installer.sh | sudo bash -s -- --help
 ```
 
 ### Optional: Cursor Manager
@@ -50,7 +50,7 @@ curl -fsSL https://raw.githubusercontent.com/flavio-ever/cursor-linux-installer/
 If you prefer a more user-friendly way to manage Cursor, you can install the Cursor Manager:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/flavio-ever/cursor-linux-installer/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/flavio-ever/cursor-ai-linux-installer/main/install.sh | bash
 ```
 
 After installation, you can use these commands:

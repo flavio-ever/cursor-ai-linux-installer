@@ -3,7 +3,7 @@
 # =============================================================================
 # Cursor Linux Installer - Installer/Updater for Cursor AI IDE on Linux
 # Author: flavio-ever
-# Repository: https://github.com/flavio-ever/cursor-linux-installer
+# Repository: https://github.com/flavio-ever/cursor-ai-linux-installer
 # Version: 1.0.1
 # 
 # This script facilitates the installation, update, and configuration of
@@ -536,7 +536,7 @@ Required Dependencies:
 The installer will automatically install these dependencies if they are missing.
 
 For more information and updates, visit:
-${ARROW} https://github.com/flavio-ever/cursor-linux-installer
+${ARROW} https://github.com/flavio-ever/cursor-ai-linux-installer
 EOL
 }
 

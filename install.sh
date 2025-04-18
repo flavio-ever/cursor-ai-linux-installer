@@ -3,7 +3,7 @@
 # =============================================================================
 # Cursor AI IDE Installer
 # Author: flavio-ever
-# Repository: https://github.com/flavio-ever/cursor-linux-installer
+# Repository: https://github.com/flavio-ever/cursor-ai-linux-installer
 # 
 # This script installs the Cursor AI IDE Manager, which provides a user-friendly
 # interface for managing Cursor AI IDE on Linux systems.
@@ -27,7 +27,7 @@ readonly LIGHTNING="⚡"
 readonly INFO="ℹ"
 
 # Configuration
-readonly MANAGER_URL="https://raw.githubusercontent.com/flavio-ever/cursor-linux-installer/main/cursor-manager.sh"
+readonly MANAGER_URL="https://raw.githubusercontent.com/flavio-ever/cursor-ai-linux-installer/main/cursor-manager.sh"
 readonly INSTALL_DIR="$HOME/.local/bin"
 readonly MANAGER_PATH="$INSTALL_DIR/cursor-manager"
 
