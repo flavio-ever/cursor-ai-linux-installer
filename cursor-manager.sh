@@ -67,11 +67,129 @@ is_cursor_running() {
     pgrep -f "cursor.AppImage" > /dev/null
 }
 
+# Check if system dependencies are installed
+check_dependencies() {
+    print_message "blue" "${INFO} Checking required dependencies..."
+    
+    local missing_deps=()
+    
+    # Essential utilities for downloading and installation
+    # curl: Required for downloading the AppImage and API communication
+    # wget: Alternative download method if curl fails
+    for dep in curl wget; do
+        if ! command -v "$dep" &>/dev/null; then
+            missing_deps+=("$dep")
+        fi
+    done
+    
+    # libfuse2: Critical dependency for running AppImages
+    # Without this, the AppImage won't even start
+    if ! dpkg -l | grep -q "^ii.*libfuse2"; then
+        missing_deps+=("libfuse2")
+    fi
+    
+    if [ ${#missing_deps[@]} -gt 0 ]; then
+        print_message "yellow" "${INFO} Missing dependencies: ${missing_deps[*]}"
+        print_message "blue" "${INFO} Installing dependencies..."
+        
+        if ! sudo apt-get update -qq; then
+            print_message "red" "${CROSS} Failed to update package lists. Aborting."
+            return 1
+        fi
+        
+        if ! sudo apt-get install -y "${missing_deps[@]}"; then
+            print_message "red" "${CROSS} Failed to install dependencies. Aborting."
+            return 1
+        fi
+        
+        print_message "green" "${CHECK} Dependencies installed successfully."
+    else
+        print_message "green" "${CHECK} All required dependencies are already installed."
+    fi
+}
+
+# Identify the user's shell configuration file
+detect_shell_config() {
+    # Get the user's shell
+    local user_shell=$(basename "$SHELL")
+    
+    case "$user_shell" in
+        bash)
+            if [ -f "$HOME/.bashrc" ]; then
+                SHELL_CONFIG="$HOME/.bashrc"
+            else
+                SHELL_CONFIG="$HOME/.bash_profile"
+                if [ ! -f "$SHELL_CONFIG" ]; then
+                    touch "$SHELL_CONFIG"
+                fi
+            fi
+            ;;
+        zsh)
+            SHELL_CONFIG="$HOME/.zshrc"
+            if [ ! -f "$SHELL_CONFIG" ]; then
+                touch "$SHELL_CONFIG"
+            fi
+            ;;
+        fish)
+            SHELL_CONFIG="$HOME/.config/fish/config.fish"
+            if [ ! -f "$SHELL_CONFIG" ]; then
+                mkdir -p "$(dirname "$SHELL_CONFIG")"
+                touch "$SHELL_CONFIG"
+            fi
+            ;;
+        *)
+            # Default to .bashrc for unknown shells
+            SHELL_CONFIG="$HOME/.bashrc"
+            if [ ! -f "$SHELL_CONFIG" ]; then
+                touch "$SHELL_CONFIG"
+            fi
+            ;;
+    esac
+    
+    print_message "blue" "${INFO} Detected shell configuration file: $SHELL_CONFIG"
+    return 0
+}
+
+# Install the manager script
+install_manager() {
+    print_message "blue" "${DOWNLOAD} Installing Cursor AI IDE Manager..."
+    
+    # Create installation directory
+    mkdir -p "$(dirname "$MANAGER_PATH")"
+    
+    # Copy the script to the installation directory
+    if ! cp "$0" "$MANAGER_PATH"; then
+        print_message "red" "${CROSS} Failed to copy manager script."
+        return 1
+    fi
+    
+    # Make the script executable
+    chmod +x "$MANAGER_PATH"
+    
+    # Detect shell and add to PATH
+    detect_shell_config
+    
+    # Add to PATH if not already present
+    if ! grep -q "export PATH=\"$(dirname "$MANAGER_PATH"):\$PATH\"" "$SHELL_CONFIG" 2>/dev/null; then
+        echo "export PATH=\"$(dirname "$MANAGER_PATH"):\$PATH\"" >> "$SHELL_CONFIG"
+    fi
+    
+    print_message "green" "${CHECK} Cursor AI IDE Manager installed successfully!"
+    print_message "yellow" "${INFO} Please restart your terminal or run:"
+    print_message "blue" "  ${ARROW} source $SHELL_CONFIG"
+    
+    return 0
+}
+
 # Install Cursor
 install_cursor() {
     if is_cursor_installed; then
         print_message "yellow" "${INFO} Cursor is already installed."
         return 0
+    fi
+
+    if ! check_dependencies; then
+        return 1
     fi
 
     if ! download_installer; then
@@ -88,6 +206,10 @@ update_cursor() {
         print_message "yellow" "${INFO} Cursor is not installed. Installing..."
         install_cursor
         return $?
+    fi
+
+    if ! check_dependencies; then
+        return 1
     fi
 
     if ! download_installer; then
@@ -168,6 +290,7 @@ Commands:
   ${CROSS} uninstall       Uninstall Cursor AI IDE
   ${INFO} version         Check Cursor AI IDE version
   ${CROSS} remove-manager   Remove the cursor-manager itself
+  ${INFO} install-manager   Install the cursor-manager itself
   ${INFO} help            Show this help message
 
 If no command is specified, the manager will check for updates.
@@ -196,6 +319,9 @@ main() {
             ;;
         "remove-manager")
             remove_manager
+            ;;
+        "install-manager")
+            install_manager
             ;;
         "help"|"--help"|"-h")
             show_help
