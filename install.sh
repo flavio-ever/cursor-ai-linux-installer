@@ -27,7 +27,7 @@ readonly LIGHTNING="⚡"
 readonly INFO="ℹ"
 
 # Configuration
-readonly MANAGER_URL="https://raw.githubusercontent.com/flavio-ever/cursor-linux-installer/main/cursor-manager"
+readonly MANAGER_URL="https://raw.githubusercontent.com/flavio-ever/cursor-linux-installer/main/cursor-manager.sh"
 readonly INSTALL_DIR="$HOME/.local/bin"
 readonly MANAGER_PATH="$INSTALL_DIR/cursor-manager"
 
