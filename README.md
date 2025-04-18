@@ -50,7 +50,7 @@ curl -fsSL https://raw.githubusercontent.com/flavio-ever/cursor-ai-linux-install
 If you prefer a more user-friendly way to manage Cursor, you can install the Cursor Manager:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/flavio-ever/cursor-ai-linux-installer/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/flavio-ever/cursor-ai-linux-installer/main/cursor-manager.sh | bash
 ```
 
 After installation, you can use these commands:
@@ -152,3 +152,9 @@ Found an issue? Please:
 - Add shell detection for bash, zsh and fish support
 - Add proper dependency checking similar to installer.sh
 - Improve PATH handling for different shell configurations
+
+### v1.0.2
+
+- Simplified installation process
+- Removed redundant install.sh script
+- Improved manager installation
