@@ -1,8 +1,12 @@
 # Cursor AI Linux Installer
 
-![Cursor Logo](https://raw.githubusercontent.com/rahuljangirwork/copmany-logos/main/cursor.png)
+<img src="resources/cursor.svg" alt="Cursor Logo" width="128" height="128">
 
 A simple installer script for Cursor AI IDE on Linux systems. Downloads and installs the latest version of Cursor with desktop integration.
+
+## Motivation
+
+This script was born out of the need to simplify the installation process of Cursor AI IDE on Linux systems. While Cursor is an excellent code editor, the company's official installation process for Linux is not straightforward and lacks proper desktop integration. This script aims to bridge that gap by providing a seamless installation experience with full desktop integration, automatic updates, and proper shell integration.
 
 ## Features
 

@@ -27,7 +27,7 @@ readonly INSTALL_DIR="/opt/cursor"
 readonly APPIMAGE_PATH="${INSTALL_DIR}/cursor.AppImage"
 readonly ICON_PATH="${INSTALL_DIR}/cursor.png"
 readonly DESKTOP_ENTRY_PATH="/usr/share/applications/cursor.desktop"
-readonly ICON_URL="https://raw.githubusercontent.com/rahuljangirwork/copmany-logos/refs/heads/main/cursor.png"
+readonly ICON_URL="https://raw.githubusercontent.com/flavio-ever/cursor-ai-linux-installer/main/resources/cursor.svg"
 readonly API_URL="https://www.cursor.com/api/download?platform=linux-x64&releaseTrack=stable"
 readonly LOG_FILE="/tmp/cursor_linux_installer.log"
 
