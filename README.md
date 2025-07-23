@@ -162,3 +162,7 @@ Found an issue? Please:
 - Simplified installation process
 - Removed redundant install.sh script
 - Improved manager installation
+
+### v1.0.3
+
+- Fix download

@@ -2,9 +2,9 @@
 
 # =============================================================================
 # Cursor Linux Installer - Installer/Updater for Cursor AI IDE on Linux
-# Author: flavio-ever
+# Author: flavio-ever (Modified version with fixes)
 # Repository: https://github.com/flavio-ever/cursor-ai-linux-installer
-# Version: 1.0.1
+# Version: 1.0.2-fixed
 # 
 # This script facilitates the installation, update, and configuration of
 # Cursor AI IDE on Linux systems, creating shortcuts and shell integration.
@@ -111,7 +111,7 @@ check_dependencies() {
     # Essential utilities for downloading and installation
     # curl: Required for downloading the AppImage and API communication
     # wget: Alternative download method if curl fails
-    for dep in curl wget; do
+    for dep in curl wget jq; do
         if ! command -v "$dep" &>/dev/null; then
             missing_deps+=("$dep")
         fi
@@ -156,24 +156,109 @@ is_cursor_running() {
 # Version Management Functions
 # -----------------------------------------------------------------------------
 
+# Parse JSON using basic tools (fallback if jq is not available)
+parse_json_value() {
+    local json="$1"
+    local key="$2"
+    
+    # Try with jq first (more reliable)
+    if command -v jq &>/dev/null; then
+        local result
+        result=$(echo "$json" | jq -r ".$key" 2>/dev/null)
+        if [ $? -eq 0 ] && [ "$result" != "null" ] && [ -n "$result" ]; then
+            echo "$result"
+            return 0
+        fi
+    fi
+    
+    # Fallback to grep/sed parsing (improved regex)
+    local result
+    result=$(echo "$json" | grep -o "\"$key\":\"[^\"]*\"" | sed "s/\"$key\":\"\([^\"]*\)\"/\1/")
+    if [ -n "$result" ]; then
+        echo "$result"
+        return 0
+    fi
+    
+    # Alternative fallback method
+    result=$(echo "$json" | sed -n "s/.*\"$key\":\s*\"\([^\"]*\)\".*/\1/p")
+    echo "$result"
+}
+
 # Fetch version information from Cursor API
 fetch_version_info() {
     log_message "INFO" "Fetching latest version information from Cursor API..."
     
     local api_response
-    api_response=$(curl -s "$API_URL")
+    # Use -L to follow redirects, -s for silent, -f to fail on HTTP errors
+    api_response=$(curl -sLf "$API_URL" 2>/dev/null)
     
-    if [ $? -ne 0 ]; then
+    if [ $? -ne 0 ] || [ -z "$api_response" ]; then
         log_message "ERROR" "Failed to connect to Cursor API."
         return 1
     fi
     
-    DOWNLOAD_URL=$(echo "$api_response" | grep -o '"downloadUrl":"[^"]*"' | cut -d'"' -f4)
-    LATEST_VERSION=$(echo "$api_response" | grep -o '"version":"[^"]*"' | cut -d'"' -f4)
+    # Check if we got a redirect response instead of JSON
+    if [[ "$api_response" == *"Redirecting"* ]] || [[ "$api_response" == *"<html"* ]]; then
+        log_message "WARNING" "Got redirect response, trying alternative method..."
+        
+        # Try with different user agent and headers
+        api_response=$(curl -sLf \
+            -H "Accept: application/json" \
+            -H "User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36" \
+            "$API_URL" 2>/dev/null)
+        
+        if [ $? -ne 0 ] || [ -z "$api_response" ] || [[ "$api_response" == *"Redirecting"* ]]; then
+            log_message "ERROR" "Still getting redirect. API might have changed."
+            return 1
+        fi
+    fi
     
-    if [[ -z "$DOWNLOAD_URL" || -z "$LATEST_VERSION" ]]; then
-        log_message "ERROR" "Failed to parse version information from API response."
+    log_message "INFO" "API Response: $api_response"
+    
+    # Validate that we got a JSON response
+    if ! echo "$api_response" | grep -q '"downloadUrl"'; then
+        log_message "ERROR" "Invalid API response format. Expected JSON with downloadUrl field."
+        log_message "ERROR" "Got: $api_response"
         return 1
+    fi
+    
+    # Parse JSON response
+    DOWNLOAD_URL=$(parse_json_value "$api_response" "downloadUrl")
+    LATEST_VERSION=$(parse_json_value "$api_response" "version")
+    
+    # Debug output
+    log_message "INFO" "Parsed download URL: $DOWNLOAD_URL"
+    log_message "INFO" "Parsed version: $LATEST_VERSION"
+    
+    if [[ -z "$DOWNLOAD_URL" || -z "$LATEST_VERSION" || "$DOWNLOAD_URL" == "null" || "$LATEST_VERSION" == "null" ]]; then
+        log_message "ERROR" "Failed to parse version information from API response."
+        log_message "ERROR" "Raw API response: $api_response"
+        
+        # Try alternative parsing method
+        log_message "INFO" "Attempting alternative parsing method..."
+        DOWNLOAD_URL=$(echo "$api_response" | grep -o '"downloadUrl":"[^"]*"' | sed 's/"downloadUrl":"//g' | sed 's/"//g')
+        LATEST_VERSION=$(echo "$api_response" | grep -o '"version":"[^"]*"' | sed 's/"version":"//g' | sed 's/"//g')
+        
+        log_message "INFO" "Alternative parsed download URL: $DOWNLOAD_URL"
+        log_message "INFO" "Alternative parsed version: $LATEST_VERSION"
+        
+        if [[ -z "$DOWNLOAD_URL" || -z "$LATEST_VERSION" ]]; then
+            log_message "WARNING" "All parsing methods failed. Trying direct download approach..."
+            
+            # Last resort: try to get the latest release from GitHub or use a known pattern
+            # This is a fallback when the API is completely broken
+            local latest_release
+            latest_release=$(curl -sL "https://api.github.com/repos/getcursor/cursor/releases/latest" | grep -o '"tag_name": *"[^"]*"' | sed 's/"tag_name": *"//g' | sed 's/"//g' 2>/dev/null)
+            
+            if [ -n "$latest_release" ]; then
+                LATEST_VERSION="$latest_release"
+                DOWNLOAD_URL="https://downloader.cursor.sh/linux/x64"
+                log_message "INFO" "Using GitHub release info - Version: $LATEST_VERSION"
+                log_message "INFO" "Using fallback download URL: $DOWNLOAD_URL"
+            else
+                return 1
+            fi
+        fi
     fi
     
     log_message "INFO" "Latest version available: $LATEST_VERSION"
@@ -291,7 +376,7 @@ download_and_install() {
     fi
     
     # Download the AppImage
-    log_message "INFO" "Downloading Cursor AppImage..."
+    log_message "INFO" "Downloading Cursor AppImage from: $DOWNLOAD_URL"
     curl -L "$DOWNLOAD_URL" -o "$APPIMAGE_PATH"
     if [ $? -ne 0 ]; then
         log_message "ERROR" "Failed to download Cursor AppImage."
@@ -532,6 +617,7 @@ If no option is specified, the script will install or update Cursor automaticall
 Required Dependencies:
   - libfuse2: Essential for running AppImages
   - curl or wget: For downloading files
+  - jq: For JSON parsing (optional but recommended)
 
 The installer will automatically install these dependencies if they are missing.
 
